@@ -1,0 +1,2 @@
+code,question_text,option_1,option_1_is_correct,option_2,option_2_is_correct,option_3,option_3_is_correct,option_4,option_4_is_correct,option_5,option_5_is_correct,score
+Q1,What is the capital of Spain?,Madrid,TRUE,Milan,FALSE,Naples,FALSE,Turin,FALSE,Venice,FALSE,2
