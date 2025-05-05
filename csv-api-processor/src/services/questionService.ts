@@ -170,10 +170,8 @@ export async function createQuestion(
         'Content-Type': 'application/json'
     };
 
-    console.log("bodyyy", requestBody);
-
     try {
-        const response = await axios.post<QuestionResponse>(`${config.baseUrl}${routes.createQuestion}`, requestBody, { headers });
+        const response = await axios.post<QuestionResponse>(`${questionConfig.baseUrl}${routes.createQuestion}`, requestBody, { headers });
         console.log('Question Creation Response:', response.data);
         return response.data.result.node_id;
     } catch (error) {

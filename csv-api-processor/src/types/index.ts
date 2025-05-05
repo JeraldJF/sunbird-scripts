@@ -18,3 +18,7 @@ export interface QuestionResponse {
 export interface QuestionMapping {
     [key: string]: string;  // code -> node_id mapping
 }
+
+export interface QuestionScoreMapping {
+    [key: string]: number;  // code -> score mapping
+}
