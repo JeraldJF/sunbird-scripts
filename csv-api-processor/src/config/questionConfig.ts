@@ -15,13 +15,14 @@ export const questionConfig = {
         type: 'mcq'
     },
     metadata: {
-        copyright: process.env.COPYRIGHT || 'Sunbird Org',
+        copyright: process.env.COPYRIGHT || 'FMPS Org',
         board: process.env.BOARD || 'CBSE',
         medium: process.env.MEDIUM || 'English',
         gradeLevel: process.env.GRADE_LEVEL ? [process.env.GRADE_LEVEL] : ['Class 1'],
         subject: process.env.SUBJECT || 'English',
         partial_scoring: process.env.PARTIAL_SCORING === 'false' ? false : true,
         layout: process.env.LAYOUT || 'Horizontal',
-        isShuffleOption: process.env.IS_SHUFFLE_OPTION === 'true' ? true : false
+        isShuffleOption: process.env.IS_SHUFFLE_OPTION === 'true' ? true : false,
+        orgainsation: process.env.ORGANISATION ? [process.env.ORGANISATION] : ['Fmps'],
     }
 };

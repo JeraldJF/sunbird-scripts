@@ -1,8 +1,7 @@
 import axios from 'axios';
-import clipboardy from 'clipboardy';
 import { config } from '../config/config';
 import { routes } from '../config/routes';
-import { QuestionMapping } from '../types';
+import { questionConfig } from '../config/questionConfig';
 
 interface ContentRequestBody {
     request: {
@@ -39,6 +38,8 @@ interface ContentUpdateRequestBody {
                 semanticVersion: string;
             }>;
             body: string;
+            copyright: string;
+            organisation: string[];
         }
     }
 }
@@ -103,7 +104,9 @@ export async function updateContent(
                 editorState: updateData.editorState || "",
                 pragma: updateData.pragma || [],
                 plugins: updateData.plugins || [],
-                body: updateData.body || ""                
+                body: updateData.body || "",
+                copyright: questionConfig.metadata.copyright,
+                organisation: questionConfig.metadata.orgainsation || []         
             }
         }
     };
@@ -129,11 +132,55 @@ export async function getAssessmentItem(identifier: string): Promise<any> {
     };
 
     try {
-        const response = await axios.get(`${config.baseUrl}/assessment/v1/items/read/${identifier}`, { headers });
+        const response = await axios.get(`${questionConfig.baseUrl}/learning-service/assessment/v3/items/read/${identifier}`, { headers });
         console.log(`Fetched assessment item ${identifier}`);
         return response.data;
     } catch (error) {
         console.error(`Error fetching assessment item ${identifier}:`, error);
+        throw error;
+    }
+}
+
+export async function reviewContent(identifier: string): Promise<void> {
+    const headers = {
+        'X-Channel-Id': config.channelId,
+        'Content-Type': 'application/json'
+    };
+
+    const body = {
+        request: {
+            content: {}
+        }
+    };
+
+    try {
+        const response = await axios.post(`${config.baseUrl}${routes.reviewContent}/${identifier}`, body, { headers });
+        console.log('Review API Response:', response.data);
+    } catch (error) {
+        console.error('Review API Error:', error);
+        throw error;
+    }
+}
+
+export async function publishContent(identifier: string): Promise<void> {
+    const headers = {
+        'X-Channel-Id': config.channelId,
+        'Content-Type': 'application/json'
+    };
+
+    const body = {
+        request: {
+            content: {
+                lastPublishedBy: config.createdBy
+            }
+        }
+    };
+
+    try {
+        const response = await axios.post(`${config.baseUrl}${routes.publishContent}/${identifier}`, body, { headers });
+        console.log('Publish API Response:', response.data);
+    } catch (error) {
+        console.error('Publish API Error:', error);
         throw error;
     }
 }

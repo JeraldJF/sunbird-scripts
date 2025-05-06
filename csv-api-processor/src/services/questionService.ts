@@ -145,10 +145,10 @@ export async function createQuestion(
                     name: `${title}\n`,
                     title: `${title}\n`,
                     copyright: questionConfig.metadata.copyright,
-                    board: questionConfig.metadata.board,
-                    medium: questionConfig.metadata.medium,
-                    gradeLevel: questionConfig.metadata.gradeLevel,
-                    subject: questionConfig.metadata.subject,
+                    // board: questionConfig.metadata.board,
+                    // medium: questionConfig.metadata.medium,
+                    // gradeLevel: questionConfig.metadata.gradeLevel,
+                    // subject: questionConfig.metadata.subject,
                     qlevel: "EASY",
                     options: [
                         {

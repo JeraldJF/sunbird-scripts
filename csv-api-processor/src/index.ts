@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { parseCsv } from './utils/csv';
-import { makeApiCall, updateContent, getAssessmentItem } from './services/api';
+import { makeApiCall, updateContent, getAssessmentItem, reviewContent, publishContent } from './services/api';
 import { createQuestion } from './services/questionService';
 import { config } from './config/config';
 import { QuestionMapping, QuestionScoreMapping } from './types';
@@ -130,7 +130,6 @@ async function processContentCsv() {
                     totalQuestions: questionIdentifiers.length,
                     totalScore,
                     questions: questionIdentifiers,
-                    stageIcons: "{\"d9ae4d48-389a-4757-867c-dc6a4beae92e\":\"data:image/png;base64,...\"}", // Replace with actual stage icons
                     editorState: JSON.stringify({ "plugin": { "noOfExtPlugins": 12, "extPlugins": [{ "plugin": "org.ekstep.contenteditorfunctions", "version": "1.2" }, { "plugin": "org.ekstep.keyboardshortcuts", "version": "1.0" }, { "plugin": "org.ekstep.richtext", "version": "1.0" }, { "plugin": "org.ekstep.iterator", "version": "1.0" }, { "plugin": "org.ekstep.navigation", "version": "1.0" }, { "plugin": "org.ekstep.reviewercomments", "version": "1.0" }, { "plugin": "org.ekstep.questionunit.mtf", "version": "1.2" }, { "plugin": "org.ekstep.questionunit.mcq", "version": "1.3" }, { "plugin": "org.ekstep.keyboard", "version": "1.1" }, { "plugin": "org.ekstep.questionunit.reorder", "version": "1.1" }, { "plugin": "org.ekstep.questionunit.sequence", "version": "1.1" }, { "plugin": "org.ekstep.questionunit.ftb", "version": "1.1" }] }, "stage": { "noOfStages": 1, "currentStage": "d9ae4d48-389a-4757-867c-dc6a4beae92e", "selectedPluginObject": "6d187a84-6ee0-4513-96ce-1d856e187c9b" }, "sidebar": { "selectedMenu": "settings" } }),
                     plugins: [
                         {
@@ -526,6 +525,14 @@ async function processContentCsv() {
                 // Call updateContent with the prepared data
                 await updateContent(identifier, versionKey, updateData);
                 console.log(`Content ${code} created and updated successfully with total score ${totalScore}`);
+
+                // Send content for review
+                await reviewContent(identifier);
+                console.log(`Content ${code} sent for review`);
+
+                // Publish the content
+                await publishContent(identifier);
+                console.log(`Content ${code} published successfully`);
             }
         }
         console.log('Content processing completed');
