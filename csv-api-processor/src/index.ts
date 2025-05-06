@@ -94,10 +94,10 @@ async function processContentCsv() {
                                 const item = assessmentData.result.assessment_item;
                                 // Store original assessment item
                                 assessmentItems.push(item);
-                                
+
                                 // Parse the stringified body
                                 const body = JSON.parse(item.body);
-                                
+
                                 const formattedItem = {
                                     "id": nodeId,
                                     "type": "mcq",
@@ -115,7 +115,7 @@ async function processContentCsv() {
                                     "x": 9,
                                     "y": 6
                                 };
-                                
+
                                 formattedAssessmentItems.push(formattedItem);
                             }
                         } catch (error) {
@@ -203,11 +203,44 @@ async function processContentCsv() {
                                                 "__cdata": JSON.stringify(assessmentItems)
                                             },
                                             "config": {
-                                                "__cdata":JSON.stringify({"title":name,"max_score":totalScore,"allow_skip":true,"show_feedback":false,"shuffle_questions":false,"shuffle_options":false,"total_items":questionIdentifiers.length,"btn_edit":"Edit"})
+                                                "__cdata": JSON.stringify({ "title": name, "max_score": totalScore, "allow_skip": true, "show_feedback": false, "shuffle_questions": false, "shuffle_options": false, "total_items": questionIdentifiers.length, "btn_edit": "Edit" })
                                             },
                                             "org.ekstep.question": formattedAssessmentItems
                                         }]
-                                }],
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 100,
+                                    "h": 100,
+                                    "rotate": null,
+                                    "config": {
+                                        "__cdata": "{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true,\"color\":\"#FFFFFF\",\"genieControls\":false,\"instructions\":\"\"}"
+                                    },
+                                    "id": "summary_stage_id",
+                                    "manifest": {
+                                        "media": [
+                                            {
+                                                "assetId": "summaryImage"
+                                            }
+                                        ]
+                                    },
+                                    "org.ekstep.summary": [
+                                        {
+                                            "config": {
+                                                "__cdata": "{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true}"
+                                            },
+                                            "id": "summary_plugin_id",
+                                            "rotate": 0,
+                                            "x": 6.69,
+                                            "y": -27.9,
+                                            "w": 77.45,
+                                            "h": 125.53,
+                                            "z-index": 0
+                                        }
+                                    ]
+                                }
+                            ],
                             "manifest": {
                                 "media": [
                                     {

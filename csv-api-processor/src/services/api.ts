@@ -45,9 +45,9 @@ interface ContentUpdateRequestBody {
 }
 
 export async function makeApiCall(
-    code: string, 
-    name: string, 
-    maxAttempts: number, 
+    code: string,
+    name: string,
+    maxAttempts: number,
     contentType: string
 ): Promise<{ identifier: string; versionKey: string }> {
     const body: ContentRequestBody = {
@@ -91,7 +91,7 @@ export async function updateContent(
     versionKey: string,
     updateData: Partial<ContentUpdateRequestBody['request']['content']>
 ): Promise<void> {
-    const body: ContentUpdateRequestBody = {
+    const body = {
         request: {
             content: {
                 versionKey,
@@ -106,7 +106,16 @@ export async function updateContent(
                 plugins: updateData.plugins || [],
                 body: updateData.body || "",
                 copyright: questionConfig.metadata.copyright,
-                organisation: questionConfig.metadata.orgainsation || []         
+                organisation: config.organisation || [],
+                se_mediums: config.se_configs.medium,
+                gradeLevel: config.se_configs.gradeLevel,
+                se_gradeLevels: config.se_configs.gradeLevel,
+                se_subjects: config.se_configs.subject,
+                medium: config.se_configs.medium,
+                se_boards: config.se_configs.boards,
+                subject: config.se_configs.subject,
+                board: config.se_configs.board,
+                consumerId: config.se_configs.consumerId
             }
         }
     };
