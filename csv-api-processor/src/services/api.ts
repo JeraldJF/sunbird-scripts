@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { config } from '../config/config';
+import { assessmentConfig } from '../config/assessmentConfig';
 import { routes } from '../config/routes';
 import { questionConfig } from '../config/questionConfig';
+import { config } from '../config/config';
 
 interface ContentRequestBody {
     request: {
@@ -57,27 +58,29 @@ export async function makeApiCall(
                 name,
                 maxAttempts,
                 description: "Enter description for Assessment",
-                createdBy: config.createdBy,
-                organisation: config.organisation,
-                createdFor: config.createdFor,
-                framework: config.framework,
-                mimeType: config.mimeType,
-                creator: config.creator,
+                createdBy: assessmentConfig.createdBy,
+                organisation: assessmentConfig.organisation,
+                createdFor: [assessmentConfig.channelId],
+                framework: assessmentConfig.framework,
+                mimeType: assessmentConfig.mimeType,
+                creator: assessmentConfig.creator,
                 contentType
             }
         }
     };
 
     const headers = {
-        'X-Channel-Id': config.channelId,
-        'Content-Type': 'application/json'
+        'X-Channel-Id': assessmentConfig.channelId,
+        'Content-Type': 'application/json',
+        'Authorization': config.apiAuthKey,
+        'x-authenticated-user-token': config.userToken
     };
 
     try {
         const response = await axios.post(`${config.baseUrl}${routes.createContent}`, body, { headers });
         console.log('API Response:', response.data);
         return {
-            identifier: response.data.result.node_id,
+            identifier: response.data.result.content_id,
             versionKey: response.data.result.versionKey
         };
     } catch (error) {
@@ -95,7 +98,7 @@ export async function updateContent(
         request: {
             content: {
                 versionKey,
-                lastUpdatedBy: config.createdBy,
+                lastUpdatedBy: assessmentConfig.createdBy,
                 stageIcons: updateData.stageIcons || "",
                 totalQuestions: updateData.totalQuestions || 0,
                 totalScore: updateData.totalScore || 0,
@@ -106,23 +109,17 @@ export async function updateContent(
                 plugins: updateData.plugins || [],
                 body: updateData.body || "",
                 copyright: questionConfig.metadata.copyright,
-                organisation: config.organisation || [],
-                se_mediums: config.se_configs.medium,
-                gradeLevel: config.se_configs.gradeLevel,
-                se_gradeLevels: config.se_configs.gradeLevel,
-                se_subjects: config.se_configs.subject,
-                medium: config.se_configs.medium,
-                se_boards: config.se_configs.boards,
-                subject: config.se_configs.subject,
-                board: config.se_configs.board,
-                consumerId: config.se_configs.consumerId
+                organisation: assessmentConfig.organisation || [],
+                consumerId: assessmentConfig.createdBy || ''
             }
         }
     };
 
     const headers = {
-        'X-Channel-Id': config.channelId,
-        'Content-Type': 'application/json'
+        'X-Channel-Id': assessmentConfig.channelId,
+        'Content-Type': 'application/json',
+        'Authorization': config.apiAuthKey,
+        'x-authenticated-user-token': config.userToken
     };
 
     try {
@@ -136,12 +133,11 @@ export async function updateContent(
 
 export async function getAssessmentItem(identifier: string): Promise<any> {
     const headers = {
-        'X-Channel-Id': config.channelId,
-        'Content-Type': 'application/json'
+        'Authorization': config.apiAuthKey,
     };
 
     try {
-        const response = await axios.get(`${questionConfig.baseUrl}/learning-service/assessment/v3/items/read/${identifier}`, { headers });
+        const response = await axios.get(`${config.baseUrl}${routes.questionsRead}/${identifier}`, { headers });
         console.log(`Fetched assessment item ${identifier}`);
         return response.data;
     } catch (error) {
@@ -152,8 +148,10 @@ export async function getAssessmentItem(identifier: string): Promise<any> {
 
 export async function reviewContent(identifier: string): Promise<void> {
     const headers = {
-        'X-Channel-Id': config.channelId,
-        'Content-Type': 'application/json'
+        'X-Channel-Id': assessmentConfig.channelId,
+        'Content-Type': 'application/json',
+        'Authorization': config.apiAuthKey,
+        'x-authenticated-user-token': config.userToken
     };
 
     const body = {
@@ -173,14 +171,16 @@ export async function reviewContent(identifier: string): Promise<void> {
 
 export async function publishContent(identifier: string): Promise<void> {
     const headers = {
-        'X-Channel-Id': config.channelId,
-        'Content-Type': 'application/json'
+        'X-Channel-Id': assessmentConfig.channelId,
+        'Content-Type': 'application/json',
+        'Authorization': config.apiAuthKey,
+        'x-authenticated-user-token': config.userToken
     };
 
     const body = {
         request: {
             content: {
-                lastPublishedBy: config.createdBy
+                lastPublishedBy: assessmentConfig.createdBy
             }
         }
     };
@@ -190,6 +190,53 @@ export async function publishContent(identifier: string): Promise<void> {
         console.log('Publish API Response:', response.data);
     } catch (error) {
         console.error('Publish API Error:', error);
+        throw error;
+    }
+}
+
+export async function getAuthToken(): Promise<string> {
+    const headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': config.apiAuthKey
+    };
+
+    const tokenData = new URLSearchParams({
+        'client_id': config.clientId,
+        'client_secret': config.clientSecret,
+        'grant_type': config.grant_type,
+        'username': config.username,
+        'password': config.password,
+    });
+
+    try {
+        // Get initial token
+        const tokenResponse = await axios.post(
+            `${config.baseUrl}${routes.getRefeshToken}`,
+            tokenData,
+            { headers }
+        );
+
+        const refreshToken = tokenResponse.data.refresh_token;
+
+        // Use refresh token to get access token
+        const refreshData = new URLSearchParams({
+            'refresh_token': refreshToken
+        });
+
+        const refreshResponse = await axios.post(
+           `${config.baseUrl}${routes.getToken}`,
+            refreshData,
+            { headers }
+        );
+
+        const accessToken = refreshResponse.data.result.access_token;
+
+        // Update the config file with the new token
+        config.userToken = accessToken;
+
+        return accessToken;
+    } catch (error) {
+        console.error('Authentication Error:', error);
         throw error;
     }
 }

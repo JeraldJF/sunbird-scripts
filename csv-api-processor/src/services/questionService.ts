@@ -1,9 +1,10 @@
 import axios from 'axios';
 import clipboardy from 'clipboardy';
-import { config } from '../config/config';
+import { assessmentConfig } from '../config/assessmentConfig';
 import { questionConfig } from '../config/questionConfig';
 import { routes } from '../config/routes';
 import { QuestionResponse } from '../types';
+import { config } from '../config/config';
 
 interface Option {
     text: string;
@@ -43,10 +44,6 @@ interface QuestionBody {
                 name: string;
                 title: string;
                 copyright: string;
-                board: string;
-                medium: string;
-                gradeLevel: string[];
-                subject: string;
                 qlevel: string;
                 category: string;
             };
@@ -102,10 +99,6 @@ export async function createQuestion(
                     name: `${title}\n`,
                     title: `${title}\n`,
                     copyright: questionConfig.metadata.copyright,
-                    board: questionConfig.metadata.board,
-                    medium: questionConfig.metadata.medium,
-                    gradeLevel: questionConfig.metadata.gradeLevel,
-                    subject: questionConfig.metadata.subject,
                     qlevel: "EASY",
                     category: "MCQ"
                 },
@@ -132,12 +125,12 @@ export async function createQuestion(
                     itemType: questionConfig.defaultValues.itemType,
                     version: questionConfig.defaultValues.version,
                     category: questionConfig.defaultValues.category,
-                    createdBy: config.createdBy,
-                    channel: config.channelId,
+                    createdBy: assessmentConfig.createdBy,
+                    channel: assessmentConfig.channelId,
                     type: questionConfig.defaultValues.type,
                     template: questionConfig.defaultValues.template,
                     template_id: questionConfig.defaultValues.template_id,
-                    framework: config.framework,
+                    framework: assessmentConfig.framework,
                     max_score: maxScore,
                     isPartialScore: questionConfig.metadata.partial_scoring,
                     evalUnordered: false,
@@ -145,10 +138,6 @@ export async function createQuestion(
                     name: `${title}\n`,
                     title: `${title}\n`,
                     copyright: questionConfig.metadata.copyright,
-                    board: questionConfig.metadata.board,
-                    medium: questionConfig.metadata.medium,
-                    gradeLevel: questionConfig.metadata.gradeLevel,
-                    subject: questionConfig.metadata.subject,
                     qlevel: "EASY",
                     options: [
                         {
@@ -166,12 +155,12 @@ export async function createQuestion(
     };
 
     const headers = {
-        'X-Channel-Id': config.channelId,
+        'X-Channel-Id': assessmentConfig.channelId,
         'Content-Type': 'application/json'
     };
 
     try {
-        const response = await axios.post<QuestionResponse>(`${questionConfig.baseUrl}${routes.createQuestion}`, requestBody, { headers });
+        const response = await axios.post<QuestionResponse>(`http://localhost:8080${routes.createQuestion}`, requestBody, { headers });
         console.log('Question Creation Response:', response.data);
         return response.data.result.node_id;
     } catch (error) {
